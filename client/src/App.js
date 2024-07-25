@@ -5,6 +5,7 @@ import About from "./pages/About";
 import ArticlesList from "./pages/ArticlesList";
 import Article from "./pages/Article";
 import NotFound from "./pages/NotFound";
+import Editor from "./pages/Editor";
 
 // Components
 import Navbar from "./components/Navbar";
@@ -13,13 +14,14 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <div className='max-w-screen-md mx-auto pt-20'>
+      <div className="max-w-screen-md mx-auto pt-20">
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/about' element={<About />} />
-          <Route path='/articles-list' element={<ArticlesList />} />
-          <Route path='/article/:name' element={<Article />} />
-          <Route path='*' element={<NotFound />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/articles-list" element={<ArticlesList />} />
+          <Route path="/article/:name" element={<Article />} />
+          <Route path="/editor" element={<Editor />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </Router>

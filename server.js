@@ -1,16 +1,18 @@
 const express = require("express");
-const app = express();
 const { MongoClient } = require("mongodb");
+const bodyParser = require("body-parser");
+const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Initialize middleware
-// we use to have to install body parser but now it is a built in middleware
-// function of express. It parses incoming JSON payload
 app.use(express.json({ extended: false }));
+app.use(bodyParser.json());
 
 const withDB = async (operations, res) => {
   try {
-    const client = await MongoClient.connect("mongodb://localhost:27017");
+    const client = await MongoClient.connect("mongodb://localhost:27017", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     const db = client.db("mernblog");
     await operations(db);
     client.close();
@@ -19,6 +21,15 @@ const withDB = async (operations, res) => {
   }
 };
 
+// Fetch all articles
+app.get("/api/articles", async (req, res) => {
+  withDB(async (db) => {
+    const articles = await db.collection("articles").find({}).toArray();
+    res.status(200).json(articles);
+  }, res);
+});
+
+// Fetch a single article by name
 app.get("/api/articles/:name", async (req, res) => {
   withDB(async (db) => {
     const articleName = req.params.name;
@@ -29,6 +40,7 @@ app.get("/api/articles/:name", async (req, res) => {
   }, res);
 });
 
+// Add comments to an article
 app.post("/api/articles/:name/add-comments", (req, res) => {
   const { username, text } = req.body;
   const articleName = req.params.name;
@@ -45,10 +57,37 @@ app.post("/api/articles/:name/add-comments", (req, res) => {
         },
       }
     );
-    const updateAricleInfo = await db
+    const updatedArticleInfo = await db
       .collection("articles")
       .findOne({ name: articleName });
-    res.status(200).json(updateAricleInfo);
+    res.status(200).json(updatedArticleInfo);
+  }, res);
+});
+
+// Add a new blog post
+app.post("/api/posts", (req, res) => {
+  const { title, author, content, imageUrl, category } = req.body;
+
+  withDB(async (db) => {
+    const newPost = {
+      name: title.toLowerCase().replace(/ /g, "-"),
+      title,
+      author,
+      content,
+      imageUrl,
+      category,
+      comments: [],
+    };
+    await db.collection("articles").insertOne(newPost);
+    res.status(201).json(newPost);
+  }, res);
+});
+
+// Fetch all posts (this should be the same as fetching all articles)
+app.get("/api/posts", (req, res) => {
+  withDB(async (db) => {
+    const posts = await db.collection("articles").find({}).toArray();
+    res.status(200).json(posts);
   }, res);
 });
 
