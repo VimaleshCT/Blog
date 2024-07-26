@@ -1,5 +1,4 @@
-import React from "react";
-import articleContent from "./article-content";
+import React, { useEffect, useState } from "react";
 
 // Components
 import Articles from "../components/Articles";
@@ -12,7 +11,7 @@ const ArticlesList = () => {
       </h1>
       <div className="container py-4 mx-auto">
         <div className="flex flex-wrap -m-4">
-          <Articles articles={articleContent} />
+          <Articles />
         </div>
       </div>
     </div>

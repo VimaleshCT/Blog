@@ -2,7 +2,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import React, { useState } from "react";
 
-const Editor = () => {
+const Editor = ({ onPostAdded }) => {
   const [editorData, setEditorData] = useState("");
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
@@ -20,11 +20,13 @@ const Editor = () => {
     if (result.ok) {
       const body = await result.json();
       console.log("Post added:", body);
-      // Optionally clear the form or show a success message
       setTitle("");
       setAuthor("");
       setEditorData("");
       setImageUrl("");
+      if (onPostAdded) {
+        onPostAdded(); // Notify parent component to re-fetch articles
+      }
     } else {
       console.error("Failed to add post");
     }

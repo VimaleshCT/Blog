@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const Articles = ({ articles }) => {
+const Articles = () => {
+  const [articles, setArticles] = useState([]);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      const response = await fetch("/api/articles");
+      const articles = await response.json();
+      setArticles(articles);
+    };
+
+    fetchArticles();
+  }, []);
+
   return (
     <>
       {articles.map((article, index) => (
@@ -10,18 +22,18 @@ const Articles = ({ articles }) => {
             <Link to={`/article/${article.name}`}>
               <img
                 className="lg:h-48 md:h-36 w-full object-cover object-center"
-                src={article.thumbnail}
-                alt="blog"
+                src={article.imageUrl || "/static/images/default-image.jpg"}
+                alt={article.title}
               />
             </Link>
             <div className="p-6">
-              <Link key={index} to={`/article/${article.name}`}>
+              <Link to={`/article/${article.name}`}>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">
                   {article.title}
                 </h3>
               </Link>
               <p className="leading-relaxed mb-3">
-                {article.content[0].substring(0, 110)}...
+                {article.content ? article.content.substring(0, 110) : ""}...
               </p>
               <div className="flex item-center flex-wrap">
                 <Link
