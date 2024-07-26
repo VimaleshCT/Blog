@@ -33,7 +33,7 @@ const Articles = () => {
                 </h3>
               </Link>
               <p className="leading-relaxed mb-3">
-                {article.content ? article.content.substring(0, 110) : ""}...
+                {article.content ? article.content[0].substring(0, 110) : ""}...
               </p>
               <div className="flex item-center flex-wrap">
                 <Link

@@ -44,4 +44,20 @@ app.get("/api/articles", async (req, res) => {
   }, res);
 });
 
+app.post("/api/posts", async (req, res) => {
+  withDB(async (db) => {
+    const { title, author, content, imageUrl } = req.body;
+    const newArticle = {
+      name: title.toLowerCase().replace(/ /g, "-"),
+      title,
+      author,
+      content: [content],
+      imageUrl,
+      comments: [],
+    };
+    const result = await db.collection("articles").insertOne(newArticle);
+    res.status(200).json(result.ops[0]);
+  }, res);
+});
+
 app.listen(PORT, () => console.log(`Server started at port ${PORT}`));

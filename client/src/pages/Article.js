@@ -1,57 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import NotFound from "../pages/NotFound";
+import articleContent from "./article-content";
+
+// Pages
+import NotFound from "./NotFound";
+
+// Components
+import Articles from "../components/Articles";
 import CommentsList from "../components/CommentsList";
 import AddCommentForm from "../components/AddCommentForm";
+
 const Article = () => {
   const { name } = useParams();
-  const [articleInfo, setArticleInfo] = useState(null);
+  const article = articleContent.find((article) => article.name === name);
+  const [articleInfo, setArticleInfo] = useState({ comments: [] });
 
   useEffect(() => {
-    const fetchArticle = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/articles/${name}`);
-        if (response.ok) {
-          const body = await response.json();
+        const result = await fetch(`/api/articles/${name}`);
+        const body = await result.json();
+        console.log(body);
+        if (body && Array.isArray(body.comments)) {
           setArticleInfo(body);
         } else {
-          setArticleInfo(null);
+          console.error("Unexpected response structure:", body);
         }
       } catch (error) {
         console.error("Error fetching article:", error);
-        setArticleInfo(null);
       }
     };
-
-    fetchArticle();
+    fetchData();
   }, [name]);
 
-  if (!articleInfo) {
-    return <NotFound />;
-  }
+  if (!article) return <NotFound />;
+
+  const otherArticles = articleContent.filter(
+    (article) => article.name !== name
+  );
 
   return (
-    <div>
+    <>
       <h1 className="sm:text-4xl text-2xl font-bold my-6 text-gray-900">
-        {articleInfo.title}
+        {article.title}
       </h1>
-      <img
-        src={articleInfo.imageUrl || "/static/images/default-image.jpg"}
-        alt={articleInfo.title}
-        className="w-full object-cover object-center mb-6"
-      />
-      {articleInfo.content && Array.isArray(articleInfo.content) ? (
-        articleInfo.content.map((paragraph, index) => (
-          <p className="mx-auto leading-relaxed text-base mb-4" key={index}>
-            {paragraph}
-          </p>
-        ))
-      ) : (
-        <p>No content available.</p>
-      )}
+      {article.content.map((paragraph, index) => (
+        <p className="mx-auto leading-relaxed text-base mb-4" key={index}>
+          {paragraph}
+        </p>
+      ))}
       <CommentsList comments={articleInfo.comments || []} />
       <AddCommentForm articleName={name} setArticleInfo={setArticleInfo} />
-    </div>
+      <h1 className="sm:text-2xl text-xl font-bold my-4 text-gray-900">
+        Other Articles
+      </h1>
+      <div className="flex flex-wrap -m-4">
+        <Articles articles={otherArticles} />
+      </div>
+    </>
   );
 };
 
